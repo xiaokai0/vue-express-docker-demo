@@ -8,7 +8,7 @@ app.get('/api/hello', (req, res) => {
     res.send({
         code: 200,
         msg: 1,
-        data: [{ name: '张三', id: 1 }, { name: '李四', id: 2 }]
+        data: [{ name: '张三', id: 1 }, { name: '李四', id: 2 }, { name: '李四', id: 3 }, { name: '王五', id: 4 }]
     }).statusCode(200)
 });
 
