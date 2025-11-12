@@ -1,3 +1,35 @@
+name: Build and Deploy to Server
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ALIYUN_ACR_REGISTRY }} # 填入你的阿里云ACR地址，如crpi-1t6clymvxe7pmj5a.cn-hangzhou.personal.cr.aliyuncs.com
+          username: ${{ secrets.ALIYUN_ACR_USERNAME }} # 你的阿里云账号全名，如向远行a
+          password: ${{ secrets.ALIYUN_ACR_PASSWORD }} # 开通服务时设置的密码
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/frontend:${{ github.sha }} # 替换为你的命名空间和镜像名
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+  
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
