@@ -1,6 +1,6 @@
 name: Build and Deploy to Server
 
-# 触发条件：仅在 main 分支 push 时执行（通常部署只在合并到主分支后进行）
+# 触发条件：仅在 master 分支 push 时执行
 on:
   push:
     branches: [ master ]
@@ -69,22 +69,22 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SERVER_SSH_KEY }} # 使用预存在 Secrets 中的私钥
 
-      # 步骤 1：把镜像传输到服务器
-      - name: Transfer images to server
+      # 关键修复：添加服务器主机密钥到 known_hosts，解决 Host key verification failed 错误
+      - name: Add server host key to known_hosts
         run: |
-          # 预先缓存服务器主机密钥（避免 Host key verification failed）
-          # ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
-          # 使用 ssh-agent 简化 scp 命令，无需每次指定 -i
+      # 合并部署步骤，减少 SSH 连接次数，提高效率
+      - name: Deploy to server
+        run: |
+          # 1. 把镜像传输到服务器
           docker save frontend:latest | ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "docker load"
           docker save backend:latest | ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "docker load"
 
-      # 步骤 2：传输 docker-compose.yml 到服务器
-      - name: Transfer docker-compose.yml
-        run: |
+          # 2. 传输 docker-compose.yml 到服务器
           scp docker-compose.yml ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:~/
 
-      # 步骤 3：在服务器上启动容器
-      - name: Deploy on server
-        run: |
+          # 3. 在服务器上启动容器
           ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "cd ~ && docker-compose down && docker-compose up -d"
