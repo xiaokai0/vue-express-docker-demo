@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   frontend:
-    image: ${ALIYUN_ACR_REGISTRY}/test6662/frontend:${IMAGE_TAG}
+    image: ${ALIYUN_ACR_REGISTRY}/test6662/blog/frontend:${IMAGE_TAG}
     container_name: frontend-service
     restart: always
     ports:
