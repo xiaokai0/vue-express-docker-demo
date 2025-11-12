@@ -1,11 +1,25 @@
 import axios from 'axios';
 
 // 1. 创建 axios 实例，并配置基础 URL
-const apiClient = axios.create({
+export const apiClient = axios.create({
     // 从环境变量中获取基础 URL
     baseURL: import.meta.env.VITE_API_BASE_URL, // 如果你使用 Vite
     // baseURL: process.env.VUE_APP_API_BASE_URL, // 如果你使用 Vue CLI
-    timeout: 10000, // 请求超时时间
+    // baseUrl: 'http://111.228.52.107:3000',
+    // timeout: 10000, // 请求超时时间
+});
+
+
+apiClient.interceptors.request.use(function (config) {
+    // 在发送请求之前做些什么
+    console.log('请求发送前');
+    console.log(config, 'config')
+
+    return config;
+}, function (error) {
+    // 对请求错误做些什么
+    console.log('请求错误');
+    return Promise.reject(error);
 });
 
 // 2. 封装 GET 请求
@@ -28,4 +42,4 @@ export const del = (url) => {
 };
 
 // 4. 导出整个实例（如果你需要在某些地方使用原始的 axios 方法）
-export default apiClient;
+// export default apiClient;

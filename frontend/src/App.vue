@@ -23,8 +23,7 @@ const fetchUsers = async () => {
   get("/api/hello")
     .then((response) => response.json())
     .then((data) => {
-      console.log(data.data);
-      userData.value = data.data;
+      userData.value = data.data.data;
     });
 };
 
