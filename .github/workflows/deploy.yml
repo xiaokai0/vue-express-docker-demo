@@ -41,7 +41,7 @@ jobs:
 
       # 步骤 5：保存镜像为 artifact（供部署阶段使用）
       - name: Upload images as artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docker-images
           path: /tmp/*.tar
