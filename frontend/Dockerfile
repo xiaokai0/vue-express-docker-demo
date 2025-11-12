@@ -8,12 +8,6 @@ RUN npm install
 
 COPY . .
 
-# 重要：在这里定义一个构建参数
-ARG API_BASE_URL
-
-# 将构建参数设置为环境变量，这样在运行 npm run build 时就能读取到
-ENV API_BASE_URL=$API_BASE_URL
-
 RUN npm run build
 
 RUN ls -l
