@@ -57,7 +57,7 @@ jobs:
               docker-compose.yml \
               ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:~/
 
-      - name: Deploy to server (Step 1 - Login ACR)
+      - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no \
               -o ConnectTimeout=30 \
@@ -66,39 +66,28 @@ jobs:
             echo '=== Logging into Aliyun ACR ==='
             echo ${{ secrets.ALIYUN_ACR_PASSWORD }} | docker login ${{ secrets.ALIYUN_ACR_REGISTRY }} -u ${{ secrets.ALIYUN_ACR_USERNAME }} --password-stdin
             echo '=== ACR Login Completed ==='
-          "
 
-      - name: Deploy to server (Step 2 - Pull Image)
-        run: |
-          ssh -o StrictHostKeyChecking=no \
-              -o ConnectTimeout=30 \
-              -o ServerAliveInterval=10 \
-              ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "
             echo '=== Pulling latest image ==='
             docker pull ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/frontend:${{ github.sha }}
             echo '=== Image Pull Completed ==='
-          "
+            echo '=== List images ==='
+            docker images | grep ${{ github.sha }}
 
-      - name: Deploy to server (Step 3 - Restart Service)
-        run: |
-          ssh -o StrictHostKeyChecking=no \
-              -o ConnectTimeout=30 \
-              -o ServerAliveInterval=10 \
-              ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "
             echo '=== Restarting Docker service ==='
             cd ~
             export IMAGE_TAG=${{ github.sha }}
             export ALIYUN_ACR_REGISTRY=${{ secrets.ALIYUN_ACR_REGISTRY }}
             
-            echo 'Current directory:' $(pwd)
-            echo 'Image tag:' $IMAGE_TAG
-            echo 'ACR Registry:' $ALIYUN_ACR_REGISTRY
+            echo 'Current directory:' \$(pwd)
+            echo 'Image tag:' \$IMAGE_TAG
+            echo 'ACR Registry:' \$ALIYUN_ACR_REGISTRY
             
             docker-compose down
             docker-compose up -d
             echo '=== Service Restart Completed ==='
             
-            # Optional: Check service status
             echo '=== Service Status ==='
             docker-compose ps
+            echo '=== Container Logs ==='
+            docker-compose logs --tail=100
           "
