@@ -1,10 +1,10 @@
 version: '3.8'
 
 services:
-  # # 后端服务
+  # 后端服务（已注释，如需启用请取消注释并修改相关配置）
   # backend:
-  #   # 从 GitHub Container Registry 拉取镜像
-  #   image: ghcr.io/${CR_USERNAME}/backend:${IMAGE_TAG}
+  #   # 从阿里云容器镜像服务拉取镜像
+  #   image: ${ALIYUN_ACR_REGISTRY}/${ALIYUN_ACR_NAMESPACE}/backend:${IMAGE_TAG}
   #   container_name: backend
   #   ports:
   #     - "3000:3000"
@@ -12,16 +12,17 @@ services:
   #   networks:
   #     - app-network
 
-  # # 前端服务
+  # 前端服务
   frontend:
-    # 从 GitHub Container Registry 拉取镜像
-    image: ghcr.io/${CR_USERNAME}/frontend:${IMAGE_TAG}
+    # 从阿里云容器镜像服务拉取镜像
+    # 格式：${ACR地址}/${命名空间}/${镜像名}:${镜像标签}
+    image: ${ALIYUN_ACR_REGISTRY}/${ALIYUN_ACR_NAMESPACE}/frontend:${IMAGE_TAG}
     container_name: frontend
     ports:
       - "80:80"
     restart: always
     depends_on:
-      - backend
+      - backend  # 依赖后端服务，若后端未启用可删除此行
     networks:
       - app-network
 
