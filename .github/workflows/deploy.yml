@@ -36,14 +36,14 @@ jobs:
           cache-to: type=gha,mode=max
 
       # 步骤 3: 构建并推送后端镜像
-      - name: Build and push backend image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          push: true  # 设置为 true 以启用推送
-          tags: ghcr.io/${{ secrets.CR_USERNAME }}/backend:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # - name: Build and push backend image
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: ./backend
+      #     push: true  # 设置为 true 以启用推送
+      #     tags: ghcr.io/${{ secrets.CR_USERNAME }}/backend:${{ github.sha }}
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
   # 部署阶段：从 GHCR 拉取镜像并在服务器上启动
   deploy:
@@ -77,7 +77,7 @@ jobs:
             
             # 拉取最新构建的镜像
             docker pull ghcr.io/${{ secrets.CR_USERNAME }}/frontend:${{ github.sha }} &&
-            docker pull ghcr.io/${{ secrets.CR_USERNAME }}/backend:${{ github.sha }} &&
+            # docker pull ghcr.io/${{ secrets.CR_USERNAME }}/backend:${{ github.sha }} &&
             
             # 进入部署目录，停止旧服务，使用新镜像启动服务
             cd ~ &&
