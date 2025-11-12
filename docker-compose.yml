@@ -2,15 +2,34 @@ version: '3.8'
 
 services:
   frontend:
-    image: ${ALIYUN_ACR_REGISTRY}/test6662/blog/frontend:${IMAGE_TAG}
+    image: ${ALIYUN_ACR_REGISTRY}/test6662/frontend:${IMAGE_TAG}
     container_name: frontend-service
     restart: always
     ports:
-      - "80:80"  # 根据你的实际端口配置调整
+      - "80:80"  # 前端端口映射
     environment:
       - NODE_ENV=production
+      # 重要：前端需要知道后端服务的地址，这里使用服务名作为 hostname
+      - API_BASE_URL=http://111.228.52.107:3000  # 假设前端是 React，后端运行在 3000 端口
     networks:
       - app-network
+    depends_on:
+      - backend  # 确保后端先启动
+
+  backend:
+    image: ${ALIYUN_ACR_REGISTRY}/test6662/backend:${IMAGE_TAG}
+    container_name: backend-service
+    restart: always
+    ports:
+      - "3000:3000"  # 后端端口映射
+    environment:
+      - NODE_ENV=production
+      # 后端的其他环境变量，例如数据库连接信息
+      # - DATABASE_URL=mongodb://mongo:27017/myapp
+      # - JWT_SECRET=${JWT_SECRET}
+    networks:
+      - app-network
+
 
 networks:
   app-network:

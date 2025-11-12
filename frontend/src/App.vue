@@ -18,12 +18,12 @@ const userData = ref([
 ]);
 
 onMounted(() => {
-  // fetch("http://localhost:3000/api/hello") // 确保这与你的 Node.js 服务端口匹配
-  //   .then((response) => response.json())
-  //   .then((data) => {
-  //     console.log(data.data);
-  //     userData.value = data.data;
-  //   });
+  fetch(`${process.env.API_BASE_URL}/api/hello`) // 确保这与你的 Node.js 服务端口匹配
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data.data);
+      userData.value = data.data;
+    });
 });
 </script>
 

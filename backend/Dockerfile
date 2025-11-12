@@ -1,5 +1,5 @@
 # 基础镜像（Node.js 14，Alpine 系统体积小）
-FROM node:14-alpine
+FROM node:20-alpine
 
 # 创建工作目录
 WORKDIR /app

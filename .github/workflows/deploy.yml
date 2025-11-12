@@ -26,7 +26,17 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/blog/frontend:${{ github.sha }}
+          tags: ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/frontend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 添加后端镜像的构建和推送步骤
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
   
@@ -67,16 +77,24 @@ jobs:
             echo ${{ secrets.ALIYUN_ACR_PASSWORD }} | docker login ${{ secrets.ALIYUN_ACR_REGISTRY }} -u ${{ secrets.ALIYUN_ACR_USERNAME }} --password-stdin
             echo '=== ACR Login Completed ==='
 
-            echo '=== Pulling latest image ==='
-            docker pull ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/blog/frontend:${{ github.sha }}
-            echo '=== Image Pull Completed ==='
+            echo '=== Pulling latest frontend image ==='
+            docker pull ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/frontend:${{ github.sha }}
+            
+            # 拉取后端镜像
+            echo '=== Pulling latest backend image ==='
+            docker pull ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/backend:${{ github.sha }}
+            
+            echo '=== Images Pull Completed ==='
             echo '=== List images ==='
             docker images | grep ${{ github.sha }}
 
-            echo '=== Restarting Docker service ==='
+            echo '=== Restarting Docker services ==='
             cd ~
             export IMAGE_TAG=${{ github.sha }}
             export ALIYUN_ACR_REGISTRY=${{ secrets.ALIYUN_ACR_REGISTRY }}
+            
+            # 如果后端需要额外的环境变量，可以在这里导出
+            # export DATABASE_URL=${{ secrets.DATABASE_URL }}
             
             echo 'Current directory:' \$(pwd)
             echo 'Image tag:' \$IMAGE_TAG
@@ -84,10 +102,14 @@ jobs:
             
             docker-compose down
             docker-compose up -d
-            echo '=== Service Restart Completed ==='
+            echo '=== Services Restart Completed ==='
             
-            echo '=== Service Status ==='
+            echo '=== Services Status ==='
             docker-compose ps
-            echo '=== Container Logs ==='
-            docker-compose logs --tail=100
+            
+            echo '=== Frontend Container Logs ==='
+            docker-compose logs --tail=100 frontend
+            
+            echo '=== Backend Container Logs ==='
+            docker-compose logs --tail=100 backend
           "
