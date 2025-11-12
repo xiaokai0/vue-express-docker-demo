@@ -6,20 +6,7 @@ export const apiClient = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL, // 如果你使用 Vite
     // baseURL: process.env.VUE_APP_API_BASE_URL, // 如果你使用 Vue CLI
     // baseUrl: 'http://111.228.52.107:3000',
-    // timeout: 10000, // 请求超时时间
-});
-
-
-apiClient.interceptors.request.use(function (config) {
-    // 在发送请求之前做些什么
-    console.log('请求发送前');
-    console.log(config, 'config')
-
-    return config;
-}, function (error) {
-    // 对请求错误做些什么
-    console.log('请求错误');
-    return Promise.reject(error);
+    timeout: 10000, // 请求超时时间
 });
 
 // 2. 封装 GET 请求
