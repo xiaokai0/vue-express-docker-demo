@@ -9,6 +9,8 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
+import { get } from "@/utils/request";
+
 const userData = ref([
   { id: 1, name: "张三" },
   { id: 2, name: "李四" },
@@ -17,13 +19,17 @@ const userData = ref([
   { id: 5, name: "赵六" },
 ]);
 
-onMounted(() => {
-  fetch("/api/hello") // 确保这与你的 Node.js 服务端口匹配
+const fetchUsers = async () => {
+  get("/api/users")
     .then((response) => response.json())
     .then((data) => {
       console.log(data.data);
       userData.value = data.data;
     });
+};
+
+onMounted(() => {
+  fetchUsers();
 });
 </script>
 
