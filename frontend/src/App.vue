@@ -9,7 +9,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { get } from "@/utils/request";
+import { get } from "./utils/request";
 
 const userData = ref([
   { id: 1, name: "张三" },
