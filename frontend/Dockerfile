@@ -8,6 +8,14 @@ RUN npm install
 
 COPY . .
 
+# 1. 定义一个构建参数 (ARG)
+#    这个参数会在构建镜像时从外部接收值
+ARG VUE_APP_API_BASE_URL
+
+# 2. 将构建参数设置为环境变量 (ENV)
+#    这样，当运行 npm run build 时，process.env.VUE_APP_API_BASE_URL 就有值了
+ENV VUE_APP_API_BASE_URL=$VUE_APP_API_BASE_URL
+
 RUN npm run build
 
 RUN ls -l
