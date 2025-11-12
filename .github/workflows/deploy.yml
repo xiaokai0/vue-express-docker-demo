@@ -79,6 +79,8 @@ jobs:
       # 步骤 2：传输 docker-compose.yml 到服务器
       - name: Transfer docker-compose.yml
         run: |
+          # 预先缓存服务器主机密钥（避免 Host key verification failed）
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           scp docker-compose.yml ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:~/
 
       # 步骤 3：在服务器上启动容器
