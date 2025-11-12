@@ -3,7 +3,7 @@ import axios from 'axios';
 // 1. 创建 axios 实例，并配置基础 URL
 const apiClient = axios.create({
     // 从环境变量中获取基础 URL
-    baseURL: process.env.VUE_APP_API_BASE_URL, // 如果你使用 Vite
+    baseURL: import.meta.env.VITE_API_BASE_URL, // 如果你使用 Vite
     // baseURL: process.env.VUE_APP_API_BASE_URL, // 如果你使用 Vue CLI
     timeout: 10000, // 请求超时时间
 });

@@ -10,7 +10,7 @@ services:
     environment:
       - NODE_ENV=production
       # 重要：前端需要知道后端服务的地址，这里使用服务名作为 hostname
-      - API_BASE_URL=http://111.228.52.107:3000  # 假设前端是 React，后端运行在 3000 端口
+      - VITE_API_BASE_URL=http://111.228.52.107:3000  # 假设前端是 React，后端运行在 3000 端口
     networks:
       - app-network
     depends_on:

@@ -32,7 +32,7 @@ jobs:
            # 关键：在这里添加 build-args
           build-args: |
             # 将你的后端服务地址传递进去
-            VUE_APP_API_BASE_URL=http://111.228.52.107:3000 
+            VITE_API_BASE_URL=http://111.228.52.107:3000 
 
       # 添加后端镜像的构建和推送步骤
       - name: Build and push backend image
