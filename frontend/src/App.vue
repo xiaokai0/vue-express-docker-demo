@@ -8,7 +8,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-const userData = ref([]);
+const userData = ref([{ id: 111, name: "占位符" }]);
 
 onMounted(() => {
   // fetch("http://localhost:3000/api/hello") // 确保这与你的 Node.js 服务端口匹配
