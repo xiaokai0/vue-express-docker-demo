@@ -16,7 +16,7 @@ services:
   frontend:
     # 从阿里云容器镜像服务拉取镜像
     # 格式：${ACR地址}/${命名空间}/${镜像名}:${镜像标签}
-    image: ${ALIYUN_ACR_REGISTRY}/${ALIYUN_ACR_NAMESPACE}/frontend:${IMAGE_TAG}
+    image: ${ALIYUN_ACR_REGISTRY}/test6662/frontend:${{ github.sha }}
     container_name: frontend
     ports:
       - "80:80"
