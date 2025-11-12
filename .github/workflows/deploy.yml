@@ -17,16 +17,16 @@ jobs:
       - name: Login to Aliyun Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.ALIYUN_ACR_REGISTRY }} # 填入你的阿里云ACR地址，如crpi-1t6clymvxe7pmj5a.cn-hangzhou.personal.cr.aliyuncs.com
-          username: ${{ secrets.ALIYUN_ACR_USERNAME }} # 你的阿里云账号全名，如向远行a
-          password: ${{ secrets.ALIYUN_ACR_PASSWORD }} # 开通服务时设置的密码
+          registry: ${{ secrets.ALIYUN_ACR_REGISTRY }}
+          username: ${{ secrets.ALIYUN_ACR_USERNAME }}
+          password: ${{ secrets.ALIYUN_ACR_PASSWORD }}
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
-          tags: ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/frontend:${{ github.sha }} # 替换为你的命名空间和镜像名
+          tags: ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/frontend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
   
@@ -49,28 +49,56 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      # ==================== 新增的步骤：复制 docker-compose.yml 文件到服务器 ====================
       - name: Copy docker-compose.yml to server
         run: |
-          # 使用 scp 命令将仓库根目录下的 docker-compose.yml 文件
-          # 复制到服务器的用户主目录（~）下
-          scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:~/
-      # =======================================================================================
+          scp -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=30 \
+              -o ServerAliveInterval=10 \
+              docker-compose.yml \
+              ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:~/
 
-      - name: Deploy to server
+      - name: Deploy to server (Step 1 - Login ACR)
         run: |
-          ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "
-            # 在服务器上设置环境变量，供 docker-compose 使用
-            export ALIYUN_ACR_REGISTRY=${{ secrets.ALIYUN_ACR_REGISTRY }} &&
+          ssh -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=30 \
+              -o ServerAliveInterval=10 \
+              ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "
+            echo '=== Logging into Aliyun ACR ==='
+            echo ${{ secrets.ALIYUN_ACR_PASSWORD }} | docker login ${{ secrets.ALIYUN_ACR_REGISTRY }} -u ${{ secrets.ALIYUN_ACR_USERNAME }} --password-stdin
+            echo '=== ACR Login Completed ==='
+          "
+
+      - name: Deploy to server (Step 2 - Pull Image)
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=30 \
+              -o ServerAliveInterval=10 \
+              ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "
+            echo '=== Pulling latest image ==='
+            docker pull ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/frontend:${{ github.sha }}
+            echo '=== Image Pull Completed ==='
+          "
+
+      - name: Deploy to server (Step 3 - Restart Service)
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=30 \
+              -o ServerAliveInterval=10 \
+              ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "
+            echo '=== Restarting Docker service ==='
+            cd ~
+            export IMAGE_TAG=${{ github.sha }}
+            export ALIYUN_ACR_REGISTRY=${{ secrets.ALIYUN_ACR_REGISTRY }}
             
-            # 登录阿里云 ACR
-            echo ${{ secrets.ALIYUN_ACR_PASSWORD }} | docker login ${{ secrets.ALIYUN_ACR_REGISTRY }} -u ${{ secrets.ALIYUN_ACR_USERNAME }} --password-stdin &&
+            echo 'Current directory:' $(pwd)
+            echo 'Image tag:' $IMAGE_TAG
+            echo 'ACR Registry:' $ALIYUN_ACR_REGISTRY
             
-            # 拉取最新的前端镜像
-            docker pull ${{ secrets.ALIYUN_ACR_REGISTRY }}/test6662/frontend:${{ github.sha }} &&
+            docker-compose down
+            docker-compose up -d
+            echo '=== Service Restart Completed ==='
             
-            # 进入主目录，停止旧服务，使用新镜像启动服务
-            cd ~ &&
-            docker-compose down &&
-            IMAGE_TAG=${{ github.sha }} docker-compose up -d
+            # Optional: Check service status
+            echo '=== Service Status ==='
+            docker-compose ps
           "
