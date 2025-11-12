@@ -20,11 +20,9 @@ const userData = ref([
 ]);
 
 const fetchUsers = async () => {
-  get("/api/hello")
-    .then((response) => response.json())
-    .then((data) => {
-      userData.value = data.data.data;
-    });
+  get("/api/hello").then((data) => {
+    userData.value = data.data.data;
+  });
 };
 
 onMounted(() => {
