@@ -18,7 +18,7 @@ const userData = ref([
 ]);
 
 onMounted(() => {
-  fetch(`${process.env.API_BASE_URL}/api/hello`) // 确保这与你的 Node.js 服务端口匹配
+  fetch("/api/hello") // 确保这与你的 Node.js 服务端口匹配
     .then((response) => response.json())
     .then((data) => {
       console.log(data.data);
