@@ -1,5 +1,5 @@
 # 阶段 1：构建 Vue 项目（多阶段构建，减小最终镜像体积）
-FROM node:14-alpine AS build-stage
+FROM node:16-alpine AS build-stage
 
 WORKDIR /app
 
